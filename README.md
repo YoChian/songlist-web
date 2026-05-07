@@ -1,11 +1,96 @@
 # 直播点歌单
 
-这是一个纯静态点歌页面，直接打开 `index.html` 即可使用。页面会从 `music-data.js` 读取歌单数据，支持搜索、语种筛选、随机点歌，以及点击歌曲行复制点歌口令。
+这是一个基于 Vue 3 + Vue Router + Vite 的多主播点歌站。每个主播通过独立的路由名访问自己的歌单，例如：
 
-## 文件说明
+- `/yukirin`
 
-- `index.html`：页面结构
-- `styles.css`：视觉样式和响应式布局
-- `app.js`：搜索、筛选、随机和复制逻辑
-- `music-data.js`：由 Excel 歌单转换得到的歌曲数据
-- `assets/live-stage.png`：本地舞台背景图
+页面支持搜索、语种筛选、随机点歌，以及点击歌曲行复制点歌口令。
+
+## 本地开发
+
+```bash
+npm install
+npm run dev
+```
+
+## 构建部署
+
+```bash
+npm run build
+```
+
+构建产物会输出到 `dist/`，可以部署到任意静态网站托管服务。因为项目使用 history 路由，线上服务需要把未知路径回退到 `index.html`，这样 `/yukirin` 这类地址刷新后才能正常打开。
+
+## GitHub Pages
+
+推送到 `main` 后，`.github/workflows/deploy-pages.yml` 会自动构建并发布到 GitHub Pages。项目页地址使用 `/songlist-web/` 作为资源基础路径，并在构建产物中生成 `404.html` 作为 Vue Router history 路由的回退页。
+
+发布地址：
+
+- `https://yochian.github.io/songlist-web/`
+- `https://yochian.github.io/songlist-web/yukirin`
+
+## 新增主播
+
+在 `src/data/streamers/` 里为每个主播新增一个目录，目录中放这个主播的 JSON 数据、头像、背景等资源：
+
+```text
+src/data/streamers/new-streamer/
+  songlist.json
+  avatar.jpg
+  background.jpg
+```
+
+```json
+{
+  "routeName": "new-streamer",
+  "displayName": "主播昵称",
+  "title": "主播昵称的直播点歌单",
+  "avatar": "avatar.jpg",
+  "background": "background.jpg",
+  "spaceUrl": "https://space.bilibili.com/...",
+  "liveUrl": "https://live.bilibili.com/...",
+  "songs": [
+    {
+      "id": 1,
+      "title": "歌曲名",
+      "artist": "歌手",
+      "language": "中文",
+      "genre": "流行",
+      "pinned": false,
+      "gift": false,
+      "bv": ""
+    }
+  ]
+}
+```
+
+页面副标题固定为“搜索歌名或歌手，筛选语种，点击复制点歌口令。”，不放在主播配置里。
+
+然后在 `src/data/streamers/list.json` 里登记需要展示的主播路由名：
+
+```json
+{
+  "streamers": ["yukirin", "new-streamer"]
+}
+```
+
+`src/data/streamers.js` 会自动发现各主播目录中的 `songlist.json`、`avatar` 和 `background` 资源，不需要为每个主播手写 import。
+
+## 当前主播数据
+
+- 路由名：`yukirin`
+- 显示名：`雪铃`
+- 数据目录：`src/data/streamers/yukirin/`
+- 数据文件：`src/data/streamers/yukirin/songlist.json`
+
+## 目录说明
+
+- `src/router/`：Vue Router 路由配置，`/:routeName` 对应主播歌单
+- `src/views/StreamerDirectory.vue`：根路径和未找到页面的主播列表
+- `src/views/StreamerPage.vue`：主播歌单页面容器
+- `src/components/`：头图、头像卡片、搜索筛选、统计和歌单列表组件
+- `src/data/streamers/list.json`：需要展示的主播路由名列表
+- `src/data/streamers.js`：自动发现主播目录并生成运行时数据
+- `src/data/streamers/*/songlist.json`：每个主播独立的数据文档
+- `src/data/streamers/*/`：每个主播自己的头像、背景等资源文件

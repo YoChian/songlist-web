@@ -1,0 +1,8 @@
+node_modules/
+dist/
+vite-dev.log
+vite-dev.err
+node-v*.msi
+node-v*.zip
+SHASUMS*.txt
+node-install.log
