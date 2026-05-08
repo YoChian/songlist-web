@@ -77,6 +77,26 @@ src/data/streamers/new-streamer/
 
 `src/data/streamers.js` 会自动发现各主播目录中的 `songlist.json`、`avatar` 和 `background` 资源，不需要为每个主播手写 import。
 
+## 歌单 CSV 转换
+
+项目提供了一个转换脚本，可以把类似 `歌手,歌名,歌曲种类,备注,是否顶置,BV号,是否礼物` 的 CSV 转成实际使用的 `songs` JSON 列表：
+
+```bash
+npm run convert:songs -- "D:\QQ\591042812\FileRecv\list_music.csv"
+```
+
+如果要直接更新某个主播的 `songlist.json`，使用 `--out`。脚本会保留头像、背景、跳转地址等主播配置，只替换 `songs`：
+
+```bash
+npm run convert:songs -- "D:\QQ\591042812\FileRecv\list_music.csv" --out "src\data\streamers\yukirin\songlist.json"
+```
+
+脚本默认会自动尝试 `utf-8` 和 `gb18030`。如果想手动指定编码，可以加 `--encoding utf8` 或 `--encoding gb18030`。想先验证解析结果而不输出完整 JSON，可以加 `--check`：
+
+```bash
+npm run convert:songs -- "D:\QQ\591042812\FileRecv\list_music.csv" --check
+```
+
 ## 当前主播数据
 
 - 路由名：`yukirin`
